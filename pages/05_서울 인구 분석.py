@@ -10,23 +10,19 @@ from pathlib import Path
 # ==========================================
 
 st.set_page_config(
-    page_title="서울시 인구 분석",
+    page_title="서울시 남녀 인구 분석",
     page_icon="📊",
     layout="wide"
 )
 
-st.title("📊 서울시 연령별 인구 분석")
-st.write("행정구역, 연도, 성별을 선택하여 연령별 인구를 분석합니다.")
+st.title("📊 서울시 자치구별 남녀 인구 분석")
+st.write("연도와 자치구를 선택하면 남자와 여자 연령별 인구를 비교합니다.")
 
 # ==========================================
-# 2. CSV 파일 경로 설정
+# 2. CSV 파일 경로
 # ==========================================
-
-# 현재 py 파일은 pages 폴더에 있고
-# CSV 파일은 그 상위 폴더에 있음
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 CSV_PATH = BASE_DIR / "population.csv"
 
 # ==========================================
@@ -56,6 +52,17 @@ def load_data():
         .str.strip()
     )
 
+    # 서울특별시 전체 행 제거
+    data = data[
+        data["행정구역"] != "서울특별시"
+    ].copy()
+
+    # 자치구 이름만 표시
+    data["행정구역"] = (
+        data["행정구역"]
+        .str.replace("서울특별시 ", "", regex=False)
+    )
+
     # 숫자 데이터 변환
     for col in data.columns:
 
@@ -82,39 +89,32 @@ except FileNotFoundError:
 
 except Exception as e:
 
-    st.error(f"데이터를 불러오는 중 오류가 발생했습니다: {e}")
+    st.error(f"데이터 오류: {e}")
     st.stop()
 
 # ==========================================
-# 4. 분석 조건 선택
+# 4. 연도와 행정구역 선택
 # ==========================================
 
 st.subheader("🔍 분석 조건 선택")
 
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
 with col1:
 
-    area_list = df["행정구역"].tolist()
-
-    selected_area = st.selectbox(
-        "행정구역 선택",
-        area_list
-    )
-
-with col2:
-
     selected_year = st.selectbox(
-        "연도 선택",
+        "📅 연도 선택",
         [2020, 2021, 2022, 2023, 2024, 2025],
         index=5
     )
 
-with col3:
+with col2:
 
-    selected_gender = st.selectbox(
-        "성별 선택",
-        ["전체", "남자", "여자"]
+    area_list = sorted(df["행정구역"].tolist())
+
+    selected_area = st.selectbox(
+        "📍 자치구 선택",
+        area_list
     )
 
 # ==========================================
@@ -136,23 +136,7 @@ age_list = [
 ]
 
 # ==========================================
-# 6. 성별 컬럼 설정
-# ==========================================
-
-if selected_gender == "전체":
-
-    gender_prefix = ""
-
-elif selected_gender == "남자":
-
-    gender_prefix = "남_"
-
-else:
-
-    gender_prefix = "여_"
-
-# ==========================================
-# 7. 선택한 행정구역 데이터 가져오기
+# 6. 선택한 자치구 데이터 가져오기
 # ==========================================
 
 selected_data = df[
@@ -161,86 +145,101 @@ selected_data = df[
 
 if selected_data.empty:
 
-    st.error("선택한 행정구역 데이터가 없습니다.")
+    st.error("선택한 자치구 데이터가 없습니다.")
     st.stop()
 
 selected_data = selected_data.iloc[0]
 
 # ==========================================
-# 8. 연령별 인구 데이터 생성
+# 7. 남자와 여자 인구 데이터 생성
 # ==========================================
 
-population_list = []
+male_population = []
+female_population = []
 
 for age in age_list:
 
-    column_name = (
-        f"{selected_year}년_"
-        f"{gender_prefix}거주자_{age}"
+    male_col = (
+        f"{selected_year}년_남_거주자_{age}"
     )
 
-    if column_name not in df.columns:
+    female_col = (
+        f"{selected_year}년_여_거주자_{age}"
+    )
+
+    if male_col not in df.columns or female_col not in df.columns:
 
         st.error(
-            f"데이터 컬럼을 찾을 수 없습니다: {column_name}"
+            f"데이터 컬럼을 찾을 수 없습니다: {male_col}, {female_col}"
         )
         st.stop()
 
-    population_list.append(
-        selected_data[column_name]
+    male_population.append(
+        selected_data[male_col]
     )
 
+    female_population.append(
+        selected_data[female_col]
+    )
+
+# 데이터프레임 생성
 chart_df = pd.DataFrame({
 
     "연령대": age_list,
-    "인구수": population_list
+    "남자": male_population,
+    "여자": female_population
 
 })
 
-chart_df["인구수"] = chart_df["인구수"].fillna(0)
+chart_df = chart_df.fillna(0)
 
 # ==========================================
-# 9. 인구 통계
+# 8. 남녀 인구 합계
 # ==========================================
 
-total_population = chart_df["인구수"].sum()
+male_total = chart_df["남자"].sum()
+female_total = chart_df["여자"].sum()
 
 st.divider()
 
-st.subheader("📌 분석 결과")
+st.subheader("📌 인구 분석 결과")
 
-m1, m2, m3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-with m1:
+with col1:
 
     st.metric(
-        "행정구역",
+        "선택 자치구",
         selected_area
     )
 
-with m2:
+with col2:
 
     st.metric(
-        "선택 연도",
-        f"{selected_year}년"
+        "👨 남자 인구",
+        f"{male_total:,.0f}명"
     )
 
-with m3:
+with col3:
 
     st.metric(
-        "연령별 인구 합계",
-        f"{total_population:,.0f}명"
+        "👩 여자 인구",
+        f"{female_total:,.0f}명"
     )
 
 # ==========================================
-# 10. 초록색 꺾은선 그래프
+# 9. 남녀 연령별 꺾은선 그래프
 # ==========================================
 
 st.divider()
 
-st.subheader("📈 연령별 인구 꺾은선 그래프")
+st.subheader("📈 남녀 연령별 인구 비교")
 
-max_population = chart_df["인구수"].max()
+# 세로축 최대값 계산
+max_population = max(
+    chart_df["남자"].max(),
+    chart_df["여자"].max()
+)
 
 y_max = max(
     1000,
@@ -249,16 +248,48 @@ y_max = max(
 
 fig = go.Figure()
 
+# 남자 그래프 - 핑크색
 fig.add_trace(
 
     go.Scatter(
 
         x=chart_df["연령대"],
-        y=chart_df["인구수"],
+        y=chart_df["남자"],
 
         mode="lines+markers",
 
-        name="인구수",
+        name="남자",
+
+        line=dict(
+            color="#FF69B4",
+            width=4
+        ),
+
+        marker=dict(
+            color="#FF69B4",
+            size=9
+        ),
+
+        hovertemplate=
+        "연령대: %{x}<br>" +
+        "남자: %{y:,.0f}명" +
+        "<extra></extra>"
+
+    )
+
+)
+
+# 여자 그래프 - 초록색
+fig.add_trace(
+
+    go.Scatter(
+
+        x=chart_df["연령대"],
+        y=chart_df["여자"],
+
+        mode="lines+markers",
+
+        name="여자",
 
         line=dict(
             color="green",
@@ -272,17 +303,18 @@ fig.add_trace(
 
         hovertemplate=
         "연령대: %{x}<br>" +
-        "인구수: %{y:,.0f}명" +
+        "여자: %{y:,.0f}명" +
         "<extra></extra>"
 
     )
 
 )
 
+# 그래프 디자인
 fig.update_layout(
 
     title=dict(
-        text=f"{selected_area} {selected_year}년 {selected_gender} 연령별 인구",
+        text=f"{selected_area} {selected_year}년 남녀 연령별 인구 비교",
         x=0.5
     ),
 
@@ -301,7 +333,7 @@ fig.update_layout(
         gridwidth=1
     ),
 
-    height=550,
+    height=600,
 
     hovermode="x unified",
 
@@ -313,10 +345,18 @@ fig.update_layout(
         size=13
     ),
 
+    legend=dict(
+        title="성별",
+        orientation="h",
+        y=1.12,
+        x=0.5,
+        xanchor="center"
+    ),
+
     margin=dict(
         l=70,
         r=30,
-        t=80,
+        t=100,
         b=60
     )
 
@@ -328,16 +368,20 @@ st.plotly_chart(
 )
 
 # ==========================================
-# 11. 연령별 인구 데이터 표
+# 10. 연령별 남녀 인구 데이터 표
 # ==========================================
 
 st.divider()
 
-st.subheader("📋 연령별 인구 데이터")
+st.subheader("📋 연령별 남녀 인구 데이터")
 
 display_df = chart_df.copy()
 
-display_df["인구수"] = display_df["인구수"].apply(
+display_df["남자"] = display_df["남자"].apply(
+    lambda x: f"{x:,.0f}명"
+)
+
+display_df["여자"] = display_df["여자"].apply(
     lambda x: f"{x:,.0f}명"
 )
 
@@ -348,7 +392,7 @@ st.dataframe(
 )
 
 # ==========================================
-# 12. CSV 다운로드
+# 11. CSV 다운로드
 # ==========================================
 
 csv_data = chart_df.to_csv(
@@ -358,22 +402,22 @@ csv_data = chart_df.to_csv(
 
 st.download_button(
 
-    label="📥 분석 결과 CSV 다운로드",
+    label="📥 남녀 인구 분석 CSV 다운로드",
 
     data=csv_data,
 
-    file_name="서울시_연령별_인구분석.csv",
+    file_name=f"{selected_area}_{selected_year}_남녀인구.csv",
 
     mime="text/csv"
 
 )
 
 # ==========================================
-# 13. 마무리
+# 12. 마무리
 # ==========================================
 
 st.divider()
 
 st.caption(
-    "서울시 인구 데이터 분석 | Pandas + Streamlit + Plotly"
+    "서울시 자치구별 남녀 인구 분석 | Pandas + Streamlit + Plotly"
 )
