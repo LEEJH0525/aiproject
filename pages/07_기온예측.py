@@ -31,7 +31,7 @@ st.divider()
 @st.cache_data
 def load_data():
 
-    file_path = Path(__file__).resolve().parent / "temperature.csv"
+    file_path = Path(__file__).resolve().parent / "temperature(2).csv"
 
     if not file_path.exists():
         raise FileNotFoundError(
