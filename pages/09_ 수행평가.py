@@ -1,20 +1,21 @@
 
 import streamlit as st
 
-# --------------------------------
+# --------------------------------------
 # 기본 설정
-# --------------------------------
+# --------------------------------------
 st.set_page_config(
     page_title="K-POP IDOL WORLD",
     page_icon="🎤",
     layout="wide"
 )
 
-# --------------------------------
-# 아이돌 그룹 데이터
-# --------------------------------
+# --------------------------------------
+# 아이돌 그룹 정보
+# --------------------------------------
 idol_groups = {
-    "보이넥스트도어 (BOYNEXTDOOR)": {
+    "보이넥스트도어": {
+        "english": "BOYNEXTDOOR",
         "members": 6,
         "names": "성호, 리우, 명재현, 태산, 이한, 운학",
         "debut": "2023년 5월 30일",
@@ -37,7 +38,8 @@ idol_groups = {
         "mv_id": "WI4__7z_dJw"
     },
 
-    "투모로우바이투게더 (TXT)": {
+    "투모로우바이투게더": {
+        "english": "TXT",
         "members": 5,
         "names": "수빈, 연준, 범규, 태현, 휴닝카이",
         "debut": "2019년 3월 4일",
@@ -61,16 +63,17 @@ idol_groups = {
         "mv_id": "Cf3daiQ4lBU"
     },
 
-    "코르티스 (CORTIS)": {
+    "코르티스": {
+        "english": "CORTIS",
         "members": 5,
         "names": "마틴, 제임스, 주훈, 성현, 건호",
         "debut": "2025년 8월 18일",
         "agency": "빅히트 뮤직",
-        "description": "자유로운 창작과 개성 있는 음악을 추구하는 신인 보이그룹입니다.",
+        "description": "자유로운 창작과 개성 있는 음악을 추구하는 보이그룹입니다.",
         "awards": [
-            "2025년 신인 그룹으로 데뷔",
             "2025년 데뷔 앨범 COLOR OUTSIDE THE LINES 발표",
-            "2026년 GREENGREEN 활동"
+            "2025년 데뷔 활동 및 신인 아티스트 활동",
+            "2026년 음악 활동 및 글로벌 팬덤 확대"
         ],
         "summary": [
             "2025년 8월 18일 빅히트 뮤직에서 데뷔한 5인조 그룹입니다.",
@@ -84,7 +87,8 @@ idol_groups = {
         "mv_id": "TZWiMoQpr8c"
     },
 
-    "아이브 (IVE)": {
+    "아이브": {
+        "english": "IVE",
         "members": 6,
         "names": "안유진, 가을, 레이, 장원영, 리즈, 이서",
         "debut": "2021년 12월 1일",
@@ -108,7 +112,8 @@ idol_groups = {
         "mv_id": "rsnhwkc4nee"
     },
 
-    "에이티즈 (ATEEZ)": {
+    "에이티즈": {
+        "english": "ATEEZ",
         "members": 8,
         "names": "홍중, 성화, 윤호, 여상, 산, 민기, 우영, 종호",
         "debut": "2018년 10월 24일",
@@ -132,45 +137,44 @@ idol_groups = {
     }
 }
 
-# --------------------------------
-# 인기도 비교용 점수
-# --------------------------------
-# 실제 세계 인기 순위가 아닌 예시 점수입니다.
+# --------------------------------------
+# 글로벌 인기도 예시 점수
+# --------------------------------------
 popularity = {
-    "아이브 (IVE)": 95,
-    "투모로우바이투게더 (TXT)": 90,
-    "에이티즈 (ATEEZ)": 86,
-    "보이넥스트도어 (BOYNEXTDOOR)": 82,
-    "코르티스 (CORTIS)": 78
+    "아이브": 95,
+    "투모로우바이투게더": 90,
+    "에이티즈": 86,
+    "보이넥스트도어": 82,
+    "코르티스": 78
 }
 
-# --------------------------------
+# --------------------------------------
 # 제목
-# --------------------------------
+# --------------------------------------
 st.title("🎤 K-POP IDOL WORLD 🌟")
 
 st.subheader("내가 좋아하는 아이돌 그룹을 알아보자!")
 
 st.write(
-    "인기 K-POP 아이돌 5개 그룹의 정보와 "
-    "최신 뮤직비디오, 글로벌 인기도 비교를 확인해 보세요!"
+    "K-POP 인기 아이돌 5개 그룹의 정보와 "
+    "최신 뮤직비디오, 글로벌 인기도를 알아보세요!"
 )
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
 # 그룹 선택
-# --------------------------------
+# --------------------------------------
 selected = st.selectbox(
-    "💖 아이돌 그룹을 선택하세요!",
+    "💖 소개받고 싶은 아이돌 그룹을 선택하세요!",
     list(idol_groups.keys())
 )
 
 data = idol_groups[selected]
 
-# --------------------------------
+# --------------------------------------
 # 기본 정보
-# --------------------------------
+# --------------------------------------
 st.header("✨ " + selected)
 
 col1, col2, col3 = st.columns(3)
@@ -186,40 +190,38 @@ with col3:
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
 # 멤버 소개
-# --------------------------------
+# --------------------------------------
 st.subheader("👑 멤버 소개")
 
+st.write("**그룹 이름:**", data["english"])
 st.write("**멤버 이름:**", data["names"])
+
 st.info(data["description"])
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
 # 최신 뮤직비디오
-# --------------------------------
+# --------------------------------------
 st.header("🎬 최신 뮤직비디오")
 
 st.subheader("🎵 " + data["mv_title"])
 
 st.write("📅 공개일:", data["mv_date"])
 
-# 유튜브 동영상 재생
 st.video(
     "https://www.youtube.com/watch?v=" + data["mv_id"]
 )
 
-st.caption(
-    "※ 공식 채널에 공개된 영상입니다. "
-    "영상 재생이 안 되면 유튜브에서 확인해 주세요."
-)
+st.caption("※ 등록된 유튜브 영상 ID를 사용합니다.")
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
 # 수상 경력
-# --------------------------------
+# --------------------------------------
 st.subheader("🏆 주요 수상 및 활동 기록")
 
 for i, award in enumerate(data["awards"], 1):
@@ -227,9 +229,9 @@ for i, award in enumerate(data["awards"], 1):
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
 # 5줄 요약
-# --------------------------------
+# --------------------------------------
 st.subheader("📝 5줄 핵심 요약")
 
 for i, sentence in enumerate(data["summary"], 1):
@@ -237,28 +239,29 @@ for i, sentence in enumerate(data["summary"], 1):
 
 st.divider()
 
-# --------------------------------
-# 세계 인기도 막대 그래프
-# --------------------------------
-st.header("🌍 K-POP 글로벌 인기도 비교")
+# --------------------------------------
+# 글로벌 인기도 막대그래프
+# --------------------------------------
+st.header("🌍 세계 K-POP 그룹 인기도 비교")
 
 st.write(
-    "5개 그룹의 인기도 비교용 점수를 막대그래프로 확인해 보세요!"
+    "5개 아이돌 그룹의 인기도 비교용 점수를 "
+    "막대그래프로 확인해 보세요!"
 )
 
 st.info(
-    "📌 아래 점수는 그래프 기능을 보여주기 위한 예시 점수입니다. "
-    "실제 세계 팬 수, 음원 순위 또는 공식 글로벌 인기 순위가 아닙니다."
+    "📌 아래 점수는 그래프 디자인과 기능을 위한 예시 점수입니다. "
+    "실제 세계 팬 수나 공식 글로벌 인기 순위는 아닙니다."
 )
 
-# 점수가 높은 순서대로 정렬
+# 높은 점수부터 정렬
 sorted_groups = sorted(
     popularity.items(),
     key=lambda x: x[1],
     reverse=True
 )
 
-# 순위별 핑크색 그라데이션
+# 핑크색 그라데이션
 colors = [
     "#FF1493",
     "#FF4DA6",
@@ -267,61 +270,72 @@ colors = [
     "#FFD1E8"
 ]
 
-st.subheader("📊 그룹별 인기도 순위")
+st.subheader("📊 그룹별 글로벌 인기도 순위")
 
+# 그래프를 한글로 직접 구성
 for rank, (group, score) in enumerate(sorted_groups):
 
     color = colors[rank]
 
-    st.markdown(
-        f"""
-        <div style="margin-bottom:20px;">
+    col1, col2 = st.columns([1, 5])
 
+    with col1:
+        st.markdown(f"### {rank + 1}위")
+
+    with col2:
+        st.markdown(
+            f"""
             <div style="
                 display:flex;
                 justify-content:space-between;
-                margin-bottom:6px;
                 font-weight:bold;
-                font-size:16px;
+                margin-bottom:5px;
+                color:inherit;
             ">
-                <span>{rank + 1}위 🏅 {group}</span>
+                <span>{group}</span>
                 <span>{score}점</span>
             </div>
-
             <div style="
                 width:100%;
-                background-color:#eeeeee;
-                border-radius:12px;
-                height:28px;
+                height:30px;
+                background-color:#EEEEEE;
+                border-radius:10px;
                 overflow:hidden;
             ">
                 <div style="
                     width:{score}%;
-                    background:linear-gradient(
-                        90deg,
-                        {color},
-                        #FFB6D9
-                    );
-                    height:28px;
-                    border-radius:12px;
+                    height:30px;
+                    background-color:{color};
+                    border-radius:10px;
                 ">
                 </div>
             </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+            """,
+            unsafe_allow_html=True
+        )
 
 st.caption(
-    "🌸 1위는 진한 핑크색이며, 순위가 낮아질수록 연한 핑크색으로 표시됩니다."
+    "🌸 1위는 진한 핑크색이며, 순위가 낮아질수록 "
+    "연한 핑크색으로 표시됩니다."
 )
 
 st.divider()
 
-# --------------------------------
+# --------------------------------------
+# 인기 점수 비교 표
+# --------------------------------------
+st.subheader("🏅 그룹별 순위표")
+
+for rank, (group, score) in enumerate(sorted_groups, 1):
+    st.write(
+        f"**{rank}위 | {group} | {score}점**"
+    )
+
+st.divider()
+
+# --------------------------------------
 # 전체 그룹 비교
-# --------------------------------
+# --------------------------------------
 st.header("🎵 아이돌 그룹 한눈에 비교")
 
 for group_name, group_data in idol_groups.items():
@@ -332,9 +346,9 @@ for group_name, group_data in idol_groups.items():
         st.write("**멤버 이름:**", group_data["names"])
         st.write("**데뷔일:**", group_data["debut"])
         st.write("**소속사:**", group_data["agency"])
-        st.write("**최신 영상:**", group_data["mv_title"])
+        st.write("**최신 뮤직비디오:**", group_data["mv_title"])
 
-        st.write("**대표 수상 및 활동:**")
+        st.write("**주요 수상 및 활동:**")
 
         for award in group_data["awards"]:
             st.write("- " + award)
